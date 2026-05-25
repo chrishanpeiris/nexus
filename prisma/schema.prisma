@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Workspace (tenant) ───────────────────────────────────────────────────────
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique   // used in public URL: /team/[slug]
+  plan      Plan     @default(FREE)
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users    User[]
+  projects Project[]
+  builds   Build[]
+
+  @@index([slug])
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String
+  hashedPassword String
+  role           Role      @default(MEMBER)
+  workspaceId    String
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt      DateTime  @default(now())
+
+  @@index([workspaceId])
+  @@index([email])
+}
+
+// ─── Project ──────────────────────────────────────────────────────────────────
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  repoUrl     String?
+  status      ProjectStatus @default(ACTIVE)
+  workspaceId String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  metrics     Metric[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([workspaceId])
+}
+
+// ─── Metric ───────────────────────────────────────────────────────────────────
+// Logged per-project; each row is one data point (e.g. "velocity: 42 points")
+model Metric {
+  id         String     @id @default(cuid())
+  type       MetricType
+  value      Float
+  note       String?
+  projectId  String
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  recordedAt DateTime   @default(now())
+
+  @@index([projectId])
+  @@index([recordedAt])
+}
+
+// ─── Build ────────────────────────────────────────────────────────────────────
+// Populated via the POST /api/webhook/ci Route Handler
+model Build {
+  id          String      @id @default(cuid())
+  project     String      // repo / project name from webhook payload
+  branch      String      @default("main")
+  status      BuildStatus
+  duration    Int?        // seconds
+  commitSha   String?
+  workspaceId String
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  triggeredAt DateTime    @default(now())
+
+  @@index([workspaceId])
+  @@index([triggeredAt])
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum MetricType {
+  VELOCITY      // story points / sprint
+  QUALITY       // bug rate, defect density
+  UPTIME        // service uptime %
+  DEPLOYMENTS   // deploys per week
+  COVERAGE      // test coverage %
+}
+
+enum BuildStatus {
+  SUCCESS
+  FAILURE
+  PENDING
+  CANCELLED
+}
