@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus — Architecture Diagram</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f1117;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 48px;
+      min-height: 100vh;
+      color: #e1e4e8;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      color: #ffffff;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #8b949e;
+      margin-bottom: 28px;
+    }
+    .diagram-wrap {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 980px;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+    button {
+      background: #238636;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover { background: #2ea043; }
+    button.secondary {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+    }
+    button.secondary:hover { background: #30363d; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #8b949e;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Nexus — System Architecture</h1>
+<p class="subtitle">Next.js 14 App Router · Edge Middleware · RSC Streaming · Server Actions · PostgreSQL · Redis · Docker</p>
+
+<div class="diagram-wrap" id="diagram-wrap">
+  <svg id="arch-svg" viewBox="0 0 940 920" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+    <defs>
+      <marker id="arrow-blue"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#58a6ff"/></marker>
+      <marker id="arrow-green"  markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#3fb950"/></marker>
+      <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#a371f7"/></marker>
+      <marker id="arrow-yellow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d29922"/></marker>
+      <marker id="arrow-teal"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#39d3bb"/></marker>
+      <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d97706"/></marker>
+      <marker id="arrow-red"    markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f87171"/></marker>
+      <marker id="arrow-grey"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#8b949e"/></marker>
+    </defs>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  ROW 1 — Edge Middleware  (y 20–135)                        -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <rect x="20" y="20" width="900" height="115" rx="10" fill="#1c1003" stroke="#d97706" stroke-width="1.5" opacity="0.95"/>
+    <text x="35" y="42" font-size="11" font-weight="700" fill="#f59e0b" letter-spacing="1.5">EDGE MIDDLEWARE  (Vercel Edge Runtime · jose HS256 JWT)</text>
+
+    <!-- JWT Verify -->
+    <rect x="38" y="52" width="200" height="70" rx="8" fill="#1c1003" stroke="#d97706" stroke-width="1.5"/>
+    <text x="138" y="73" font-size="12" font-weight="600" fill="#fbbf24" text-anchor="middle">JWT Verification</text>
+    <line x1="43" y1="79" x2="233" y2="79" stroke="#d97706" stroke-width="0.8" opacity="0.6"/>
+    <text x="138" y="97" font-size="10" fill="#8b949e" text-anchor="middle">jose — edge-compatible (no Node.js)</text>
+    <text x="138" y="112" font-size="10" fill="#8b949e" text-anchor="middle">cookie: nexus-session (httpOnly)</text>
+
+    <!-- Routing Rules -->
+    <rect x="255" y="52" width="255" height="70" rx="8" fill="#1c1003" stroke="#d97706" stroke-width="1.5"/>
+    <text x="382" y="73" font-size="12" font-weight="600" fill="#fbbf24" text-anchor="middle">Routing Rules</text>
+    <line x1="260" y1="79" x2="505" y2="79" stroke="#d97706" stroke-width="0.8" opacity="0.6"/>
+    <text x="382" y="97" font-size="10" fill="#8b949e" text-anchor="middle">Unauthed + /dashboard → /login?from=... (307)</text>
+    <text x="382" y="112" font-size="10" fill="#8b949e" text-anchor="middle">Authed + /login → /dashboard (307)</text>
+
+    <!-- Header Injection -->
+    <rect x="527" y="52" width="285" height="70" rx="8" fill="#1c1003" stroke="#d97706" stroke-width="1.5"/>
+    <text x="669" y="73" font-size="12" font-weight="600" fill="#fbbf24" text-anchor="middle">Header Injection</text>
+    <line x1="532" y1="79" x2="807" y2="79" stroke="#d97706" stroke-width="0.8" opacity="0.6"/>
+    <text x="669" y="97" font-size="10" fill="#8b949e" text-anchor="middle">x-user-id · x-workspace-id · x-user-role</text>
+    <text x="669" y="112" font-size="10" fill="#8b949e" text-anchor="middle">x-user-name  →  RSC layout reads from headers()</text>
+
+    <!-- Matcher note -->
+    <text x="845" y="80" font-size="9" fill="#d97706" text-anchor="middle" font-weight="600">matcher:</text>
+    <text x="845" y="95" font-size="9" fill="#d97706" text-anchor="middle">skip _next/</text>
+    <text x="845" y="110" font-size="9" fill="#d97706" text-anchor="middle">api/webhook</text>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  ROW 2 — App Router Pages  (y 153–328)                      -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <rect x="20"  y="153" width="282" height="175" rx="10" fill="#0b1d1e" stroke="#39d3bb" stroke-width="1.5" opacity="0.9"/>
+    <rect x="320" y="153" width="200" height="175" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5" opacity="0.9"/>
+    <rect x="538" y="153" width="382" height="175" rx="10" fill="#0d2818" stroke="#238636" stroke-width="1.5" opacity="0.9"/>
+
+    <text x="35"  y="174" font-size="11" font-weight="700" fill="#39d3bb" letter-spacing="1.5">MARKETING  &amp;  ISR</text>
+    <text x="335" y="174" font-size="11" font-weight="700" fill="#8b949e" letter-spacing="1.5">AUTH PAGES</text>
+    <text x="553" y="174" font-size="11" font-weight="700" fill="#3fb950" letter-spacing="1.5">DASHBOARD  (RSC + STREAMING)</text>
+
+    <!-- Landing page -->
+    <rect x="38"  y="184" width="118" height="128" rx="8" fill="#0b1d1e" stroke="#39d3bb" stroke-width="1.5"/>
+    <text x="97"  y="204" font-size="11" font-weight="600" fill="#56d4c9" text-anchor="middle">Landing  /</text>
+    <line x1="43"  y1="210" x2="151" y2="210" stroke="#39d3bb" stroke-width="0.8" opacity="0.6"/>
+    <text x="97"  y="228" font-size="10" fill="#8b949e" text-anchor="middle">Static HTML</text>
+    <text x="97"  y="243" font-size="10" fill="#8b949e" text-anchor="middle">No auth required</text>
+    <text x="97"  y="258" font-size="10" fill="#8b949e" text-anchor="middle">Zero JS for data</text>
+    <text x="97"  y="300" font-size="9"  fill="#39d3bb" text-anchor="middle" font-style="italic">fully static</text>
+
+    <!-- ISR Team page -->
+    <rect x="170" y="184" width="118" height="128" rx="8" fill="#0b1d1e" stroke="#39d3bb" stroke-width="1.5"/>
+    <text x="229" y="204" font-size="11" font-weight="600" fill="#56d4c9" text-anchor="middle">/team/[slug]</text>
+    <line x1="175" y1="210" x2="283" y2="210" stroke="#39d3bb" stroke-width="0.8" opacity="0.6"/>
+    <text x="229" y="228" font-size="10" fill="#8b949e" text-anchor="middle">ISR page</text>
+    <text x="229" y="243" font-size="10" fill="#8b949e" text-anchor="middle">revalidate: 3600</text>
+    <text x="229" y="258" font-size="10" fill="#8b949e" text-anchor="middle">generateStatic</text>
+    <text x="229" y="273" font-size="10" fill="#8b949e" text-anchor="middle">Params()</text>
+    <text x="229" y="288" font-size="10" fill="#8b949e" text-anchor="middle">dynamicParams</text>
+    <text x="229" y="300" font-size="9"  fill="#39d3bb" text-anchor="middle" font-style="italic">on-demand regen</text>
+
+    <!-- Auth pages -->
+    <rect x="338" y="184" width="164" height="128" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+    <text x="420" y="204" font-size="11" font-weight="600" fill="#c9d1d9" text-anchor="middle">/login · /register</text>
+    <line x1="343" y1="210" x2="497" y2="210" stroke="#30363d" stroke-width="0.8" opacity="0.6"/>
+    <text x="420" y="228" font-size="10" fill="#8b949e" text-anchor="middle">useFormState hook</text>
+    <text x="420" y="243" font-size="10" fill="#8b949e" text-anchor="middle">Server Action submit</text>
+    <text x="420" y="258" font-size="10" fill="#8b949e" text-anchor="middle">bcrypt verify</text>
+    <text x="420" y="273" font-size="10" fill="#8b949e" text-anchor="middle">httpOnly cookie set</text>
+    <text x="420" y="288" font-size="10" fill="#8b949e" text-anchor="middle">redirect('/dashboard')</text>
+    <text x="420" y="300" font-size="9"  fill="#8b949e" text-anchor="middle" font-style="italic">react-dom · React 18</text>
+
+    <!-- Dashboard Layout -->
+    <rect x="556" y="184" width="150" height="128" rx="8" fill="#0d2818" stroke="#238636" stroke-width="1.5"/>
+    <text x="631" y="204" font-size="11" font-weight="600" fill="#56d364" text-anchor="middle">Dashboard Layout</text>
+    <line x1="561" y1="210" x2="701" y2="210" stroke="#238636" stroke-width="0.8" opacity="0.6"/>
+    <text x="631" y="228" font-size="10" fill="#8b949e" text-anchor="middle">reads x-user-* headers</text>
+    <text x="631" y="243" font-size="10" fill="#8b949e" text-anchor="middle">one Prisma call</text>
+    <text x="631" y="258" font-size="10" fill="#8b949e" text-anchor="middle">(workspace name)</text>
+    <text x="631" y="273" font-size="10" fill="#8b949e" text-anchor="middle">&lt;Sidebar&gt; nav</text>
+    <text x="631" y="300" font-size="9"  fill="#3fb950" text-anchor="middle" font-style="italic">(dashboard) route group</text>
+
+    <!-- Streaming Dashboard -->
+    <rect x="720" y="184" width="186" height="128" rx="8" fill="#0d2818" stroke="#238636" stroke-width="1.5"/>
+    <text x="813" y="204" font-size="11" font-weight="600" fill="#56d364" text-anchor="middle">Streaming Dashboard</text>
+    <line x1="725" y1="210" x2="901" y2="210" stroke="#238636" stroke-width="0.8" opacity="0.6"/>
+    <text x="813" y="228" font-size="10" fill="#8b949e" text-anchor="middle">&lt;Suspense&gt; × 3</text>
+    <text x="813" y="243" font-size="10" fill="#8b949e" text-anchor="middle">StatsGrid (async RSC)</text>
+    <text x="813" y="258" font-size="10" fill="#8b949e" text-anchor="middle">RecentBuilds (async RSC)</text>
+    <text x="813" y="273" font-size="10" fill="#8b949e" text-anchor="middle">ActiveProjects (async RSC)</text>
+    <text x="813" y="300" font-size="9"  fill="#3fb950" text-anchor="middle" font-style="italic">streams independently — no waterfall</text>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  ROW 3 — Server Actions + Route Handler  (y 346–521)        -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <rect x="20"  y="346" width="568" height="175" rx="10" fill="#1a0d2e" stroke="#6e40c9" stroke-width="1.5" opacity="0.9"/>
+    <rect x="606" y="346" width="314" height="175" rx="10" fill="#0c1f12" stroke="#2d6a4f" stroke-width="1.5" opacity="0.9"/>
+
+    <text x="35"  y="367" font-size="11" font-weight="700" fill="#a371f7" letter-spacing="1.5">SERVER ACTIONS  ('use server')</text>
+    <text x="621" y="367" font-size="11" font-weight="700" fill="#52b788" letter-spacing="1.5">ROUTE HANDLER</text>
+
+    <!-- auth.ts -->
+    <rect x="38"  y="377" width="130" height="128" rx="8" fill="#1a0d2e" stroke="#6e40c9" stroke-width="1.5"/>
+    <text x="103" y="396" font-size="11" font-weight="600" fill="#c084fc" text-anchor="middle">auth.ts</text>
+    <line x1="43"  y1="402" x2="163" y2="402" stroke="#6e40c9" stroke-width="0.8" opacity="0.6"/>
+    <text x="103" y="420" font-size="10" fill="#8b949e" text-anchor="middle">login()</text>
+    <text x="103" y="435" font-size="10" fill="#8b949e" text-anchor="middle">register()</text>
+    <text x="103" y="450" font-size="10" fill="#8b949e" text-anchor="middle">logout()</text>
+    <text x="103" y="465" font-size="10" fill="#8b949e" text-anchor="middle">redirect()</text>
+    <text x="103" y="494" font-size="9"  fill="#a371f7" text-anchor="middle" font-style="italic">cookie mgmt</text>
+
+    <!-- projects.ts -->
+    <rect x="185" y="377" width="148" height="128" rx="8" fill="#1a0d2e" stroke="#6e40c9" stroke-width="1.5"/>
+    <text x="259" y="396" font-size="11" font-weight="600" fill="#c084fc" text-anchor="middle">projects.ts</text>
+    <line x1="190" y1="402" x2="328" y2="402" stroke="#6e40c9" stroke-width="0.8" opacity="0.6"/>
+    <text x="259" y="420" font-size="10" fill="#8b949e" text-anchor="middle">createProject()</text>
+    <text x="259" y="435" font-size="10" fill="#8b949e" text-anchor="middle">archiveProject()</text>
+    <text x="259" y="450" font-size="10" fill="#8b949e" text-anchor="middle">logMetric()</text>
+    <text x="259" y="465" font-size="10" fill="#8b949e" text-anchor="middle">revalidateTag()</text>
+    <text x="259" y="494" font-size="9"  fill="#a371f7" text-anchor="middle" font-style="italic">invalidates cache on write</text>
+
+    <!-- members + settings -->
+    <rect x="350" y="377" width="218" height="128" rx="8" fill="#1a0d2e" stroke="#6e40c9" stroke-width="1.5"/>
+    <text x="459" y="396" font-size="11" font-weight="600" fill="#c084fc" text-anchor="middle">members.ts · settings.ts</text>
+    <line x1="355" y1="402" x2="563" y2="402" stroke="#6e40c9" stroke-width="0.8" opacity="0.6"/>
+    <text x="459" y="420" font-size="10" fill="#8b949e" text-anchor="middle">inviteMember() · removeMember()</text>
+    <text x="459" y="435" font-size="10" fill="#8b949e" text-anchor="middle">role gating (OWNER / ADMIN)</text>
+    <text x="459" y="450" font-size="10" fill="#8b949e" text-anchor="middle">updateWorkspace()</text>
+    <text x="459" y="465" font-size="10" fill="#8b949e" text-anchor="middle">revalidateTag(workspace + team)</text>
+    <text x="459" y="494" font-size="9"  fill="#a371f7" text-anchor="middle" font-style="italic">FormData · useFormState (React 18)</text>
+
+    <!-- Webhook Route Handler -->
+    <rect x="624" y="377" width="278" height="128" rx="8" fill="#0c1f12" stroke="#2d6a4f" stroke-width="1.5"/>
+    <text x="763" y="396" font-size="11" font-weight="600" fill="#74c69d" text-anchor="middle">POST /api/webhook/ci</text>
+    <line x1="629" y1="402" x2="897" y2="402" stroke="#2d6a4f" stroke-width="0.8" opacity="0.6"/>
+    <text x="763" y="420" font-size="10" fill="#8b949e" text-anchor="middle">reads x-workspace-id header</text>
+    <text x="763" y="435" font-size="10" fill="#8b949e" text-anchor="middle">Redis rate limit: 5 req / 10 s</text>
+    <text x="763" y="450" font-size="10" fill="#8b949e" text-anchor="middle">prisma.build.create()</text>
+    <text x="763" y="465" font-size="10" fill="#8b949e" text-anchor="middle">revalidateTag(builds + workspace)</text>
+    <text x="763" y="480" font-size="10" fill="#8b949e" text-anchor="middle">→ 201 { buildId, rateLimit }</text>
+    <text x="763" y="494" font-size="9"  fill="#52b788" text-anchor="middle" font-style="italic">Node.js runtime (not Edge)</text>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  ROW 4 — Cache Layer  (y 539–669)                           -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <rect x="20"  y="539" width="900" height="130" rx="10" fill="#0b1d1e" stroke="#39d3bb" stroke-width="1.5" opacity="0.9"/>
+    <text x="35"  y="560" font-size="11" font-weight="700" fill="#39d3bb" letter-spacing="1.5">CACHE LAYER  (Next.js unstable_cache + revalidateTag)</text>
+
+    <!-- unstable_cache wrappers -->
+    <rect x="38"  y="570" width="310" height="83" rx="8" fill="#0b1d1e" stroke="#39d3bb" stroke-width="1.5"/>
+    <text x="193" y="589" font-size="12" font-weight="600" fill="#56d4c9" text-anchor="middle">unstable_cache Wrappers</text>
+    <line x1="43"  y1="595" x2="343" y2="595" stroke="#39d3bb" stroke-width="0.8" opacity="0.6"/>
+    <text x="193" y="613" font-size="10" fill="#8b949e" text-anchor="middle">getWorkspaceStats · getRecentBuilds</text>
+    <text x="193" y="628" font-size="10" fill="#8b949e" text-anchor="middle">getActiveProjects · getProjectMetrics</text>
+    <text x="193" y="643" font-size="10" fill="#8b949e" text-anchor="middle">getPublicTeam — tagged per workspace</text>
+
+    <!-- tags factory -->
+    <rect x="366" y="570" width="250" height="83" rx="8" fill="#0b1d1e" stroke="#39d3bb" stroke-width="1.5"/>
+    <text x="491" y="589" font-size="12" font-weight="600" fill="#56d4c9" text-anchor="middle">tags factory</text>
+    <line x1="371" y1="595" x2="611" y2="595" stroke="#39d3bb" stroke-width="0.8" opacity="0.6"/>
+    <text x="491" y="613" font-size="10" fill="#8b949e" text-anchor="middle">workspace-{id} · projects-{id}</text>
+    <text x="491" y="628" font-size="10" fill="#8b949e" text-anchor="middle">builds-{id} · metrics-{id}</text>
+    <text x="491" y="643" font-size="10" fill="#8b949e" text-anchor="middle">team-{slug} — typo-safe constants</text>
+
+    <!-- Redis rate limiting -->
+    <rect x="634" y="570" width="256" height="83" rx="8" fill="#1a0808" stroke="#f87171" stroke-width="1.5"/>
+    <text x="762" y="589" font-size="12" font-weight="600" fill="#fca5a5" text-anchor="middle">Redis (rate limiting)</text>
+    <line x1="639" y1="595" x2="885" y2="595" stroke="#f87171" stroke-width="0.8" opacity="0.6"/>
+    <text x="762" y="613" font-size="10" fill="#8b949e" text-anchor="middle">checkRateLimit(key, 5, 10_000)</text>
+    <text x="762" y="628" font-size="10" fill="#8b949e" text-anchor="middle">sliding window — ZADD / ZCOUNT</text>
+    <text x="762" y="643" font-size="10" fill="#8b949e" text-anchor="middle">{ allowed, remaining } → 429 on limit</text>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  ROW 5 — Prisma ORM  (y 687–792)                            -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <rect x="20"  y="687" width="900" height="105" rx="10" fill="#1c1507" stroke="#bb8009" stroke-width="1.5" opacity="0.9"/>
+    <text x="35"  y="708" font-size="11" font-weight="700" fill="#d29922" letter-spacing="1.5">PRISMA ORM  (v5 · Node.js · singleton via globalThis)</text>
+
+    <rect x="38"  y="718" width="182" height="60" rx="8" fill="#1c1507" stroke="#bb8009" stroke-width="1.5"/>
+    <text x="129" y="737" font-size="11" font-weight="600" fill="#e3b341" text-anchor="middle">Workspace + User</text>
+    <line x1="43"  y1="743" x2="215" y2="743" stroke="#bb8009" stroke-width="0.8" opacity="0.6"/>
+    <text x="129" y="759" font-size="10" fill="#8b949e" text-anchor="middle">name · slug (unique) · plan enum</text>
+    <text x="129" y="774" font-size="10" fill="#8b949e" text-anchor="middle">role: OWNER / ADMIN / MEMBER</text>
+
+    <rect x="236" y="718" width="165" height="60" rx="8" fill="#1c1507" stroke="#bb8009" stroke-width="1.5"/>
+    <text x="318" y="737" font-size="11" font-weight="600" fill="#e3b341" text-anchor="middle">Project + Metric</text>
+    <line x1="241" y1="743" x2="396" y2="743" stroke="#bb8009" stroke-width="0.8" opacity="0.6"/>
+    <text x="318" y="759" font-size="10" fill="#8b949e" text-anchor="middle">status: ACTIVE / ARCHIVED</text>
+    <text x="318" y="774" font-size="10" fill="#8b949e" text-anchor="middle">MetricType enum · value · note</text>
+
+    <rect x="417" y="718" width="175" height="60" rx="8" fill="#1c1507" stroke="#bb8009" stroke-width="1.5"/>
+    <text x="504" y="737" font-size="11" font-weight="600" fill="#e3b341" text-anchor="middle">Build</text>
+    <line x1="422" y1="743" x2="587" y2="743" stroke="#bb8009" stroke-width="0.8" opacity="0.6"/>
+    <text x="504" y="759" font-size="10" fill="#8b949e" text-anchor="middle">project · branch · status</text>
+    <text x="504" y="774" font-size="10" fill="#8b949e" text-anchor="middle">duration · commitSha · workspaceId</text>
+
+    <rect x="608" y="718" width="300" height="60" rx="8" fill="#1c1507" stroke="#bb8009" stroke-width="1.5"/>
+    <text x="758" y="737" font-size="11" font-weight="600" fill="#e3b341" text-anchor="middle">Seed Data</text>
+    <line x1="613" y1="743" x2="903" y2="743" stroke="#bb8009" stroke-width="0.8" opacity="0.6"/>
+    <text x="758" y="759" font-size="10" fill="#8b949e" text-anchor="middle">Workspace: Acme Engineering (PRO, isPublic: true)</text>
+    <text x="758" y="774" font-size="10" fill="#8b949e" text-anchor="middle">3 users · 3 projects · 8 builds · 8 metrics</text>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  ROW 6 — Databases + Tooling  (y 810–905)                   -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- PostgreSQL -->
+    <rect x="20"  y="810" width="412" height="92" rx="10" fill="#0c1929" stroke="#388bfd" stroke-width="1.5" opacity="0.9"/>
+    <text x="35"  y="830" font-size="11" font-weight="700" fill="#79c0ff" letter-spacing="1.5">POSTGRESQL 16  (Docker)</text>
+
+    <rect x="38"  y="840" width="175" height="47" rx="8" fill="#0c1929" stroke="#388bfd" stroke-width="1.5"/>
+    <text x="125" y="858" font-size="11" font-weight="600" fill="#79c0ff" text-anchor="middle">Port 5432</text>
+    <line x1="43"  y1="864" x2="208" y2="864" stroke="#388bfd" stroke-width="0.8" opacity="0.6"/>
+    <text x="125" y="880" font-size="10" fill="#8b949e" text-anchor="middle">postgres:16-alpine · healthcheck</text>
+
+    <rect x="228" y="840" width="186" height="47" rx="8" fill="#0c1929" stroke="#388bfd" stroke-width="1.5"/>
+    <text x="321" y="858" font-size="11" font-weight="600" fill="#79c0ff" text-anchor="middle">Prisma Migrations</text>
+    <line x1="233" y1="864" x2="409" y2="864" stroke="#388bfd" stroke-width="0.8" opacity="0.6"/>
+    <text x="321" y="880" font-size="10" fill="#8b949e" text-anchor="middle">prisma migrate dev · db:seed</text>
+
+    <!-- Redis -->
+    <rect x="450" y="810" width="268" height="92" rx="10" fill="#1a0808" stroke="#f87171" stroke-width="1.5" opacity="0.9"/>
+    <text x="465" y="830" font-size="11" font-weight="700" fill="#fca5a5" letter-spacing="1.5">REDIS 7  (Docker)</text>
+
+    <rect x="468" y="840" width="232" height="47" rx="8" fill="#1a0808" stroke="#f87171" stroke-width="1.5"/>
+    <text x="584" y="858" font-size="11" font-weight="600" fill="#fca5a5" text-anchor="middle">Port 6379 · ioredis singleton</text>
+    <line x1="473" y1="864" x2="695" y2="864" stroke="#f87171" stroke-width="0.8" opacity="0.6"/>
+    <text x="584" y="880" font-size="10" fill="#8b949e" text-anchor="middle">redis:7-alpine · globalThis singleton</text>
+
+    <!-- Tooling strip -->
+    <rect x="736" y="810" width="184" height="92" rx="10" fill="#111820" stroke="#30363d" stroke-width="1.5" opacity="0.9"/>
+    <text x="751" y="830" font-size="11" font-weight="700" fill="#8b949e" letter-spacing="1.5">TOOLING</text>
+    <text x="828" y="849" font-size="10" fill="#8b949e" text-anchor="middle">Vitest (unit + integration)</text>
+    <text x="828" y="864" font-size="10" fill="#8b949e" text-anchor="middle">Playwright E2E</text>
+    <text x="828" y="879" font-size="10" fill="#8b949e" text-anchor="middle">TypeScript strict · Tailwind v3</text>
+    <text x="828" y="894" font-size="10" fill="#8b949e" text-anchor="middle">Docker Compose · ESLint</text>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  ARROWS                                                      -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+
+    <!-- Middleware → ISR / Marketing pages -->
+    <path d="M 160 135 L 160 153" stroke="#d97706" stroke-width="1.5" fill="none" marker-end="url(#arrow-orange)"/>
+
+    <!-- Middleware → Auth pages -->
+    <path d="M 420 135 L 420 153" stroke="#d97706" stroke-width="1.5" fill="none" marker-end="url(#arrow-orange)"/>
+
+    <!-- Middleware → Dashboard (with x-user headers) -->
+    <path d="M 700 135 L 700 153" stroke="#d97706" stroke-width="1.5" fill="none" marker-end="url(#arrow-orange)"/>
+    <text x="715" y="147" font-size="9" fill="#d97706">x-user-*</text>
+
+    <!-- Auth pages → Server Actions auth.ts (form submit) -->
+    <path d="M 420 328 L 420 340 L 103 340 L 103 377" stroke="#a371f7" stroke-width="1.5" stroke-dasharray="5,3" fill="none" marker-end="url(#arrow-purple)"/>
+    <text x="262" y="337" font-size="9" fill="#a371f7" text-anchor="middle">login / register submit</text>
+
+    <!-- Streaming RSC components call unstable_cache (right-side routing to avoid crossing row 3 boxes) -->
+    <path d="M 900 290 L 925 290 L 925 555 L 354 555 L 354 539" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="5,3" fill="none" marker-end="url(#arrow-teal)"/>
+    <text x="927" y="430" font-size="9" fill="#3fb950" writing-mode="tb" text-anchor="middle">async RSC reads cache</text>
+
+    <!-- Server Actions → revalidateTag (invalidate) -->
+    <path d="M 350 521 L 350 533 L 491 533 L 491 539" stroke="#a371f7" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#arrow-teal)"/>
+    <text x="415" y="530" font-size="9" fill="#a371f7" text-anchor="middle">revalidateTag()</text>
+
+    <!-- Webhook → revalidateTag -->
+    <path d="M 763 521 L 763 533 L 491 533" stroke="#52b788" stroke-width="1.5" stroke-dasharray="4,3" fill="none"/>
+
+    <!-- Webhook → Redis rate limit (straight down, left of redis box) -->
+    <path d="M 730 521 L 730 533 L 762 533 L 762 539" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#arrow-red)"/>
+
+    <!-- unstable_cache → Prisma (queries) -->
+    <path d="M 193 653 L 193 680 L 504 680 L 504 687" stroke="#d29922" stroke-width="1.5" fill="none" marker-end="url(#arrow-yellow)"/>
+    <text x="350" y="677" font-size="9" fill="#d29922" text-anchor="middle">Prisma queries (read)</text>
+
+    <!-- Server Actions → Prisma (mutations — route along left edge) -->
+    <path d="M 38 459 L 15 459 L 15 750 L 38 750" stroke="#d29922" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#arrow-yellow)"/>
+    <text x="7" y="620" font-size="9" fill="#d29922" writing-mode="tb" text-anchor="middle">mutations</text>
+
+    <!-- Prisma → PostgreSQL -->
+    <path d="M 300 792 L 300 810" stroke="#388bfd" stroke-width="1.5" fill="none" marker-end="url(#arrow-blue)"/>
+    <text x="315" y="804" font-size="9" fill="#388bfd">SQL</text>
+
+    <!-- Redis rate limit → Redis (Docker) -->
+    <path d="M 762 653 L 762 810" stroke="#f87171" stroke-width="1.5" fill="none" marker-end="url(#arrow-red)"/>
+
+  </svg>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#d97706;"></div>Edge Middleware (JWT · Redirect · Header Injection)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#39d3bb;"></div>Marketing + ISR Pages</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#238636;"></div>RSC Dashboard (Streaming + Suspense)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6e40c9;"></div>Server Actions</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2d6a4f;"></div>Webhook Route Handler</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#bb8009;"></div>Prisma ORM</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#388bfd;"></div>PostgreSQL 16</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f87171;"></div>Redis 7</div>
+</div>
+
+<div class="btn-row">
+  <button onclick="downloadPNG()">⬇ Download PNG</button>
+  <button class="secondary" onclick="window.print()">🖨 Print / Save PDF</button>
+</div>
+
+<script>
+  function downloadPNG() {
+    const svg     = document.getElementById('arch-svg');
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas  = document.createElement('canvas');
+    const scale   = 2;
+    canvas.width  = 940 * scale;
+    canvas.height = 920 * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+    ctx.fillStyle = '#161b22';
+    ctx.fillRect(0, 0, 940, 920);
+    const img  = new Image();
+    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, 940, 920);
+      URL.revokeObjectURL(url);
+      const a = document.createElement('a');
+      a.download = 'nexus-architecture.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    };
+    img.src = url;
+  }
+</script>
+
+</body>
+</html>
